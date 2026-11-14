@@ -38,9 +38,9 @@ function sanitizeLog(entry, disallowedCharacters) {
 
   return result;
 }
-console.log(
-  sanitizeLog("DEBUG: Server started on port 3000", ["a", "S", "r", "t"]),
-);
+//console.log(
+// sanitizeLog("DEBUG: Server started on port 3000", ["a", "S", "r", "t"]),
+//);
 
 /* message = `Total Entry Count: ${entry.length} Sanitized Entry Count: 
       ${entry.length}. Informational Entry Count: ${count}. Finished sanitizing logs.`; */
@@ -50,19 +50,21 @@ console.log(
 // ["a", "S", "r", "t"]) should return the string DEBUG: #e#ve# s####ed on po## 3000.
 
 function cleanLogs(entries, disallowedCharacters) {
-  let count = 0;
+  let informationalCount = 0;
+  const sanitizedEntries = [];
 
-  const sanitizedEntries = entries.map((entry) => {
-    const cleaned = sanitizeLog(entry, disallowedCharacters);
-
-    if (cleaned.startsWith("/$")) {
-      count++;
+  for (const entry of entries) {
+    if (entry.includes("$")) {
+      return "Sanitizing stopped. Failure Reason: Fatal character occurred.";
     }
 
-    return cleaned;
-  });
+    if (entry.startsWith("/INFO")) {
+      informationalCount++;
+      continue;
+    }
 
-  return `Total Entry Count: ${entries.length}. Sanitized Entry Count: ${sanitizedEntries.length}. Informational Entry Count: ${count}. Finished sanitizing logs.`;
+    sanitizedEntries.push(sanitizeLog(entry, disallowedCharacters));
+  }
+
+  return `Total Entry Count: ${entries.length}. Sanitized Entry Count: ${sanitizedEntries.length}. Informational Entry Count: ${informationalCount}. Finished sanitizing logs.`;
 }
-
-console.log(cleanLogs(logs_2, ["a", "A", "c", "T"]));
